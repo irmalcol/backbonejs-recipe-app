@@ -6,7 +6,7 @@ const RecipeModel = Backbone.Model.extend({
     },
     
     initialize: function() {
-        console.log('Model is initialized');
+        // console.log('Model is initialized');
     }
 });
 
@@ -16,8 +16,8 @@ const RecipeCollection = Backbone.Collection.extend({
     url: 'https://api.github.com/gists/66755d6e09ef7d1b2e253e116575ce84',
     
     initialize: function() {
-        const test = this.fetch();// Remove test if not required.
-        console.log('RecipeCollection is initialized');
+        this.fetch();
+        // console.log('RecipeCollection is initialized');
     },
     
     parse: function(response) {
@@ -36,7 +36,7 @@ const RecipeListView = Backbone.View.extend({
     el: '#app-container',
 
     initialize: function() {
-        console.log('RecipeListView initializing');
+        // console.log('RecipeListView initializing');
         this.render();
 
         this.listenTo(this.collection, 'update', this.render);
@@ -44,7 +44,7 @@ const RecipeListView = Backbone.View.extend({
 
     render: function() {
         Recipes.each(function(model) {
-            console.log('model in render: ', model);
+            // console.log('model in render: ', model);
             const recipe = new RecipeView({
                 model: model
             });
@@ -68,7 +68,7 @@ const RecipeView = Backbone.View.extend({
     template: _.template($('#recipe-template').html()),
     
     initialize: function() {
-        console.log('RecipeView is initialized');
+        // console.log('RecipeView is initialized');
     },
     
     render: function() {

@@ -2,6 +2,12 @@ body {
     font-family: 'Overpass', sans-serif;
     padding-left: 15px;
     padding-right: 15px;
+    background: #EEE;
+}
+
+h2 {
+    margin: 0;
+    padding: 15px 10px;
 }
 
 h4 {
@@ -11,4 +17,15 @@ h4 {
 
 li {
     list-style-type: none;
+}
+
+.recipe-wrapper {
+    border: 5px solid #DDD;
+    padding: 10px;
+    margin: 10px 0;
+    background: #B7E0FF;
+}
+
+.recipe-wrapper h2 {
+    background: rgba(0, 0, 0, 0.2);
 }
