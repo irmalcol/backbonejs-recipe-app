@@ -1,7 +1,5 @@
 // This is a Backbone.js app.
 
-
-
 const RecipeModel = Backbone.Model.extend({
     defaults: {
         'title': 'Untitled Recipe'

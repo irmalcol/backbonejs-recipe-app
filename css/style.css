@@ -1,0 +1,9 @@
+body {
+    font-family: 'Overpass', sans-serif;
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
+li {
+    list-style-type: none;
+}
