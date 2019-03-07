@@ -1,14 +1,39 @@
 [
     {
         "id": 0,
-        "title": "First Recipe"
+        "title": "Beef Stew",
+        "category": "Entree",
+        "ingredients": [
+            "Beef chuck",
+            "Onions",
+            "Potatoes",
+            "Carrots",
+            "Beef broth",
+            "Cornstarch"
+        ]
     },
     {
         "id": 1,
-        "title": "Second Recipe"
+        "title": "Chocolate-Chip Cookies",
+        "category": "Dessert",
+        "ingredients": [
+            "All-purpose flour",
+            "Sugar",
+            "Baking Soda",
+            "Salt",
+            "Semi-sweet chocolate chips"
+        ]
     },
     {
         "id": 2,
-        "title": "Third Recipe"
+        "title": "Instant Pot Chicken Thighs",
+        "category": "Entree",
+        "ingredients":[
+            "Boneless, skinless chicken thighs",
+            "Smoked paprika",
+            "Garlic powder",
+            "Salt",
+            "Pepper"
+        ]
     }
 ]
