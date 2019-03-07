@@ -29,3 +29,17 @@ li {
 .recipe-wrapper h2 {
     background: rgba(0, 0, 0, 0.2);
 }
+
+button {
+    margin: 0 3px;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.filter-buttons .enabled {
+    background: #58d869;
+}
+
+.filter-buttons .disabled {
+    background: #F26888;
+}

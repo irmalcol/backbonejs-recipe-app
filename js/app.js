@@ -29,42 +29,103 @@ const RecipeCollection = Backbone.Collection.extend({
     }
 });
 
-const Recipes = new RecipeCollection;
-
-const RecipeListView = Backbone.View.extend({
-
+const ButtonView = Backbone.View.extend({
+    tagName: 'section',
+    
     el: '#app-container',
 
+    events: {
+        'click button': 'handleClick'
+    },
+
+    buttonTemplate: _.template($('#filter-buttons-template').html()),
+
+    initialize: function() {
+        // this.categories = this.model.get('categories');
+        this.render();
+    },
+    
+    render: function() {
+        // Render filter buttons
+        // console.log(this.model.get('categories').attributes);
+        // const categories = this.model.get('categories').attributes;
+        // console.log(categories);
+        const compiledTemplate = this.buttonTemplate(this.model.attributes);
+        this.$el.html(compiledTemplate);
+
+        // Render recipe list
+    },
+
+    handleClick: function(e) {
+        console.log(e.target);
+        const clickedButton = e.target;
+        const category = clickedButton.getAttribute('data-category');
+        const toDisabled = ('true' === clickedButton.getAttribute('data-enabled'));
+
+        this.toggleFilterButton(clickedButton, toDisabled);
+        this.toggleCategory(category, toDisabled);
+        this.trigger('update_category', {category, });
+
+        console.log(toDisabled);
+        // console.log(this.model.attributes);
+    },
+
+    toggleCategory: function(category, toEnabled) {
+        let enabled = false;
+        if(toEnabled) {
+            enabled = 'true';
+            // this.model.get('categories').set(category, 'false');
+        }
+        this.trigger('update_config', {category, enabled});
+        // console.log(this.model.attributes);
+    },
+
+    toggleFilterButton: function(button, toDisabled) {
+        button.classList.toggle('enabled');
+        button.classList.toggle('disabled');
+        if (toDisabled) {
+            button.setAttribute('data-enabled', 'false');
+        } else {
+            button.setAttribute('data-enabled', 'true');
+        }
+    }
+});
+
+
+const RecipeListView = Backbone.View.extend({
+    
+    el: '#app-container',
+    
     initialize: function() {
         // console.log('RecipeListView initializing');
         this.render();
-
+        
         this.listenTo(this.collection, 'update', this.render);
     },
-
+    
     render: function() {
-        Recipes.each(function(model) {
+        this.collection.each(function(model) {
             // console.log('model in render: ', model);
             const recipe = new RecipeView({
                 model: model
             });
-
+            
             this.$el.append(recipe.render().el);
         }.bind(this));
-
+        
         return this;
     }
 });
 
 const RecipeView = Backbone.View.extend({
     tagName: 'li',
-
+    
     className: 'recipe-wrapper',
     
     events: {
         'click': 'handleClick'
     },
-
+    
     template: _.template($('#recipe-template').html()),
     
     initialize: function() {
@@ -72,7 +133,6 @@ const RecipeView = Backbone.View.extend({
     },
     
     render: function() {
-
         const compiledTemplate = this.template(this.model.attributes);
         this.$el.html(compiledTemplate);
         
@@ -84,4 +144,22 @@ const RecipeView = Backbone.View.extend({
     }
 });
 
-const app = new RecipeListView({collection: Recipes});
+
+// Config Section
+const Config = Backbone.Model.extend({
+    defaults: {
+        "categories": {
+            "appetizer": true,
+            "entree": true,
+            "dessert": true
+        }
+    }
+});
+
+const config = new Config;
+const recipes = new RecipeCollection;
+const buttonView = new ButtonView({model: config});
+// console.log(config.get('categories'));
+const listView = new RecipeListView({collection: recipes});
+
+// config.on('change', app.render());// fix this?
