@@ -25,13 +25,8 @@
         </ul>
     </script>
 
-    <script type="text/template" id="filter-buttons-template">
-        <div class="filter-buttons">
-            <span>Category Toggles: </span>
-            <% Object.keys(categories).map( category_key => { %>
-                <button data-category="<%= category_key %>" data-enabled="<%= categories[category_key] %>" class="enabled"><%= category_key %></button>
-            <% }); %>
-        </div>
+    <script type="text/template" id="single-category-template">
+        <button data-category="<%= name %>" data-enabled="<%= enabled %>" class="capitalize <% if (enabled) { %>enabled<% } else { %>disabled<% } %>"><%= name %></button>
     </script>
     <!-- End of Templates -->
         

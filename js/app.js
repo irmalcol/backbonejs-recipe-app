@@ -1,5 +1,9 @@
 // This is a Backbone.js app.
 
+/////////////////////
+// Recipes Section //
+/////////////////////
+
 const RecipeModel = Backbone.Model.extend({
     defaults: {
         'title': 'Untitled Recipe'
@@ -29,88 +33,44 @@ const RecipeCollection = Backbone.Collection.extend({
     }
 });
 
-const ButtonView = Backbone.View.extend({
-    tagName: 'section',
-    
-    el: '#app-container',
-
-    events: {
-        'click button': 'handleClick'
-    },
-
-    buttonTemplate: _.template($('#filter-buttons-template').html()),
-
-    initialize: function() {
-        // this.categories = this.model.get('categories');
-        this.render();
-    },
-    
-    render: function() {
-        // Render filter buttons
-        // console.log(this.model.get('categories').attributes);
-        // const categories = this.model.get('categories').attributes;
-        // console.log(categories);
-        const compiledTemplate = this.buttonTemplate(this.model.attributes);
-        this.$el.html(compiledTemplate);
-
-        // Render recipe list
-    },
-
-    handleClick: function(e) {
-        console.log(e.target);
-        const clickedButton = e.target;
-        const category = clickedButton.getAttribute('data-category');
-        const toDisabled = ('true' === clickedButton.getAttribute('data-enabled'));
-
-        this.toggleFilterButton(clickedButton, toDisabled);
-        this.toggleCategory(category, toDisabled);
-        this.trigger('update_category', {category, });
-
-        console.log(toDisabled);
-        // console.log(this.model.attributes);
-    },
-
-    toggleCategory: function(category, toEnabled) {
-        let enabled = false;
-        if(toEnabled) {
-            enabled = 'true';
-            // this.model.get('categories').set(category, 'false');
-        }
-        this.trigger('update_config', {category, enabled});
-        // console.log(this.model.attributes);
-    },
-
-    toggleFilterButton: function(button, toDisabled) {
-        button.classList.toggle('enabled');
-        button.classList.toggle('disabled');
-        if (toDisabled) {
-            button.setAttribute('data-enabled', 'false');
-        } else {
-            button.setAttribute('data-enabled', 'true');
-        }
-    }
-});
-
-
 const RecipeListView = Backbone.View.extend({
     
     el: '#app-container',
     
     initialize: function() {
         // console.log('RecipeListView initializing');
-        this.render();
         
         this.listenTo(this.collection, 'update', this.render);
     },
     
     render: function() {
         this.collection.each(function(model) {
-            // console.log('model in render: ', model);
             const recipe = new RecipeView({
                 model: model
             });
             
             this.$el.append(recipe.render().el);
+        }.bind(this));
+        
+        return this;
+    },
+
+    renderFromConfigEvent: function(e) {
+        const enabledModels = e.collection.where({enabled: true});
+        const enabledModelNames = enabledModels.map( element => { 
+            return element.get('name');
+        });
+        
+        this.collection.each(function(recipeModel) {
+            const category = recipeModel.get('category');
+            
+            if (enabledModelNames.includes(category)) { // Array.prototype.includes() not supported in IE
+                const recipe = new RecipeView({
+                    model: recipeModel
+                });
+    
+                this.$el.append(recipe.render().el);
+            }
         }.bind(this));
         
         return this;
@@ -121,10 +81,6 @@ const RecipeView = Backbone.View.extend({
     tagName: 'li',
     
     className: 'recipe-wrapper',
-    
-    events: {
-        'click': 'handleClick'
-    },
     
     template: _.template($('#recipe-template').html()),
     
@@ -138,28 +94,121 @@ const RecipeView = Backbone.View.extend({
         
         return this;
     },
-    
-    handleClick: function(e) {
-        console.log('Clicked!');
-    }
 });
 
+////////////////////
+// Config Section //
+////////////////////
 
-// Config Section
-const Config = Backbone.Model.extend({
+const RecipeConfig = Backbone.Model.extend({
     defaults: {
-        "categories": {
-            "appetizer": true,
-            "entree": true,
-            "dessert": true
-        }
+        'name': 'Recipe Config',
+        'enabled': true
     }
 });
 
-const config = new Config;
-const recipes = new RecipeCollection;
-const buttonView = new ButtonView({model: config});
-// console.log(config.get('categories'));
-const listView = new RecipeListView({collection: recipes});
+const RecipeConfigCollection = Backbone.Collection.extend({
+    model: RecipeConfig,
 
-// config.on('change', app.render());// fix this?
+    initialize: function() {
+        this.add([
+            {'name': 'appetizer'},
+            {'name': 'entree'},
+            {'name': 'dessert'}
+        ]);
+    }
+});
+
+const CategoryButtonsView = Backbone.View.extend({
+    
+    el: '#app-container',
+
+    events: {
+        'click button': 'handleClick'
+    },
+
+    initialize: function() {
+        this.render();
+        
+        this.listenTo(this.collection, 'update', this.render);
+    },
+
+    render: function() {
+        const buttonWrapper = document.createElement('div');
+        buttonWrapper.className = 'filter-buttons';
+
+        this.collection.each(function(model) {
+            const category = new CategoryButtonSubview({
+                model: model
+            });
+
+
+            buttonWrapper.appendChild(category.render().el);
+        }.bind(this));
+        
+        this.$el.append(buttonWrapper);
+
+        return this;
+    }
+});
+
+const CategoryButtonSubview = Backbone.View.extend({
+    tagName: 'span',
+
+    events: {
+        'click': 'handleClick'
+    },
+
+    template: _.template($('#single-category-template').html()),
+
+    initialize: function() {
+        'init function here'
+    },
+
+    render: function() {
+        const compiledTemplate = this.template(this.model.attributes);
+        this.$el.html(compiledTemplate);
+        
+        return this;
+    },
+
+    handleClick: function(e) {
+        const clickedButton = e.target;
+        const toDisabled = ('true' === clickedButton.getAttribute('data-enabled'));
+
+        this.toggleFilterButton(clickedButton, toDisabled);
+        this.toggleCategory(toDisabled);
+    },
+
+    toggleCategory: function(toDisabled) {
+        const enabled = toDisabled ? false : true;
+        this.model.set('enabled', enabled);
+    },
+
+    toggleFilterButton: function(button, toDisabled) {
+        button.classList.toggle('enabled');
+        button.classList.toggle('disabled');
+        if (toDisabled) {
+            button.setAttribute('data-enabled', 'false');
+        } else {
+            button.setAttribute('data-enabled', 'true');
+        }
+    } 
+});
+
+const ResetView = Backbone.View.extend({
+    el: '#app-container',
+
+    resetView: function() {
+        this.$el.html('');
+    }
+});
+
+const configCollection = new RecipeConfigCollection
+const categoriesView = new CategoryButtonsView({collection: configCollection});
+const recipes = new RecipeCollection;
+const listView = new RecipeListView({collection: recipes});
+const resetView = new ResetView;
+resetView.listenTo(configCollection, 'change', resetView.resetView);
+categoriesView.listenTo(configCollection, 'change', categoriesView.render);
+listView.listenTo(configCollection, 'change', listView.renderFromConfigEvent);
